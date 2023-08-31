@@ -41,3 +41,51 @@ docker-compose -f docker-compose.test.yml up --build
 ```shell
 make generate  
 ```
+
+Запросы:
+
+curl -X 'POST' \
+  'http://localhost/api/v2/segment' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "slug": "AVITO_VOICE_MESSAGES"
+}'
+http://localhost/api/v2/segment
+
+
+curl -X 'DELETE' \
+  'http://localhost/api/v2/segment' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "slug": "AVITO_VOICE_MESSAGES"
+}'
+http://localhost/api/v2/segment
+
+
+
+curl -X 'GET' \
+  'http://localhost/api/v2/user' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_id": 1002
+}'
+http://localhost/api/v2/user
+
+curl -X 'POST' \
+  'http://localhost/api/v2/user' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "slugs_add": [
+    "AVITO_VOICE_MESSAGE"
+  ],
+  "slugs_delete": [
+    "AVITO_VOICE_MESSAGES"
+  ],
+  "user_id": 1002
+}'
+http://localhost/api/v2/user
+
