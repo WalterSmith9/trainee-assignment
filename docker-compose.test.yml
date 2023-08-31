@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:14
+    restart: always
+    container_name: postgres
+    volumes:
+      - ./sql/:/docker-entrypoint-initdb.d/
+    environment:
+      POSTGRES_USER: tests
+      POSTGRES_PASSWORD: tests
+      POSTGRES_DATABASE: tests
+      PGDATA: /var/lib/pgsql/data/
+    logging:
+      driver: none
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api/dev/Dockerfile
+    restart: always
+    container_name: api
+    volumes:
+      - ./etc/test.yml:/go/bin/etc/common.yml
+    command:
+      - /go/bin/trainee-assignment
+    ports:
+      - "8070:8070"
+    depends_on:
+      - postgres
+    networks:
+      - default
+
+  tests:
+    build:
+      context: .
+      dockerfile: ./docker/api/test/Dockerfile
+    container_name: tests
+    command: "go test ./tests/... -v"
+    depends_on:
+      - api
+    networks:
+      - default

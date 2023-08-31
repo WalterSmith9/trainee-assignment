@@ -1,0 +1,236 @@
+---
+swagger: "2.0"
+info:
+  description: "Тестовое задание для стажёра Backend"
+  version: "1.0.0"
+  title: "trainee-assignment"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "vova.kuznetsov4@mail.ru"
+host: "localhost"
+basePath: "/api/v2"
+schemes:
+  - "http"
+tags:
+  - name: "Segment"
+    description: "API operations with segment"
+    externalDocs:
+      description: "Find out more about segment"
+      url: "http://localhost/swagger/#"
+  - name: "User"
+    description: "API operations with user"
+    externalDocs:
+      description: "Find out more about user"
+      url: "http://localhost/swagger/#"
+paths:
+  /segment:
+    post:
+      tags:
+        - "Segment"
+      summary: "Create new segment"
+      description: "Accepts information about segment and stores it"
+      operationId: "SegmentCreate"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'segmentInfo'
+          in: 'body'
+          required: true
+          description: 'Segment information fields'
+          schema:
+            $ref: '#/definitions/SegmentCreateRequest'
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - "Segment"
+      summary: "Removes existing segment"
+      description: "Accepts segment slug and removes it"
+      operationId: "SegmentDelete"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'segmentInfo'
+          in: 'body'
+          required: true
+          description: 'Segment information fields'
+          schema:
+            $ref: '#/definitions/SegmentDeleteRequest'
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /user:
+    get:
+      tags:
+        - "User"
+      summary: "Return user's segments"
+      description: "Accepts user's ID and returns segments they participate in"
+      operationId: "GetSegments"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'userInfo'
+          in: 'body'
+          required: true
+          description: 'User information fields'
+          schema:
+            $ref: '#/definitions/UserSegmentsGetRequest'
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: '#/definitions/UserSegmentsGetResponse'
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+        - "User"
+      summary: "Update user's segments"
+      description: "Accepts information about user and segments they participate in and stores it"
+      operationId: "UserEdit"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: 'userInfo'
+          in: 'body'
+          required: true
+          description: 'User information fields'
+          schema:
+            $ref: '#/definitions/UserEditRequest'
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+definitions:
+  UserSegmentsGetResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+        description: "Response code"
+        example: 1
+      message:
+        type: "string"
+        description: "Response message"
+        example: "success"
+      data:
+        type: "array"
+        description: "Array of Segments User is in"
+        items:
+          type: "string"
+          description: "Response data object"
+          example: "AVITO_VOICE_MESSAGES"
+  UserSegmentsGetRequest:
+    type: "object"
+    required:
+      - "user_id"
+    properties:
+      user_id:
+        type: integer
+        description: "User id"
+        example: 1002
+  UserEditRequest:
+    type: "object"
+    required:
+      - "user_id"
+    properties:
+      slugs_add:
+        type: "array"
+        description: "Array of segment slugs to add"
+        items:
+          type: "string"
+          description: "Segment slug"
+          example: "AVITO_VOICE_MESSAGES"
+      slugs_delete:
+        type: "array"
+        description: "Array of segment slugs to delete"
+        items:
+          type: "string"
+          description: "Segment slug"
+          example: "AVITO_DISCOUNT_50"
+      user_id:
+        type: integer
+        description: "User id"
+        example: 1002
+  SegmentCreateRequest:
+    type: "object"
+    required:
+      - "slug"
+    properties:
+      slug:
+        type: "string"
+        description: "Segment slug"
+        example: "AVITO_VOICE_MESSAGES"
+  SegmentDeleteRequest:
+    type: "object"
+    required:
+      - "slug"
+    properties:
+      slug:
+        type: "string"
+        description: "Segment slug"
+        example: "AVITO_VOICE_MESSAGES"
+  SuccessResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+  ErrorResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://localhost/swagger/#"

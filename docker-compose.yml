@@ -1,0 +1,61 @@
+version: '3.9'
+
+services:
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    restart: always
+    volumes:
+      - ./swagger.yaml:/swagger.yaml
+    environment:
+      SWAGGER_JSON: /swagger.yaml
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+
+  postgres:
+    image: postgres:14
+    restart: always
+    volumes:
+      - ./sql/:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: trainee
+      POSTGRES_PASSWORD: trainee
+      POSTGRES_DATABASE: trainee
+      PGDATA: /var/lib/pgsql/data/
+    networks:
+      - default
+
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api/dev/Dockerfile
+    restart: always
+    container_name: api
+    volumes:
+      - ./etc/dev.yml:/go/bin/etc/common.yaml
+    command:
+      - /go/bin/trainee-assignment
+    logging:
+      driver: none
+    depends_on:
+      - postgres
+    networks:
+      - default
+
+  nginx:
+    image: nginx
+    restart: always
+    volumes:
+      - ./docker/nginx/dev/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/dev/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+      - swagger
+    networks:
+      - default

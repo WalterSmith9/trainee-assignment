@@ -1,0 +1,53 @@
+package main
+
+{{ $name := .Name }}
+{{ $operations := .Operations }}
+import (
+	"fmt"
+	"log"
+    "github.com/WalterSmith9/{{ dasherize .Name }}/src/helpers/configs"
+	"github.com/WalterSmith9/{{ dasherize .Name }}/src/swagger/generated/restapi"
+	"github.com/WalterSmith9/{{ dasherize .Name }}/src/swagger/generated/restapi/operations"
+	{{range $index, $op := .Operations}}
+        {{ $found := false }}
+        {{ range $i, $sop := $operations }}
+            {{ if and (gt $i $index ) (eq $op.Package $sop.Package)}}
+                {{ $found = true }}
+            {{end}}
+        {{end}}
+        {{ if not $found }}
+        api{{ pascalize $op.Package }} "{{$op.GenCommon.TargetImportPath}}/{{ $op.RootPackage }}/operations/{{ $op.Package }}"
+        {{end}}
+    {{end}}
+	"github.com/go-openapi/loads"
+	"github.com/vrischmann/envconfig"
+	"github.com/WalterSmith9/{{ dasherize .Name }}/src/swagger/app"
+)
+
+func main() {
+	swaggerSpec, err := loads.Analyzed({{ .APIPackage }}.SwaggerJSON, "")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+    srv := app.New()
+	api := operations.New{{ pascalize .Name }}API(swaggerSpec)
+
+    //api.APIKeyHeaderAuth = srv.APIKeyHeaderAuth
+	{{range .Operations}}
+    api.{{ pascalize .Package }}{{ pascalize .Name }}Handler = api{{ pascalize .Package }}.{{ pascalize .Name }}HandlerFunc(srv.{{ pascalize .Name }}Handler)
+    {{- end}}
+    api.ServerShutdown = srv.OnShutdown
+	server := {{ .APIPackage }}.NewServer(api)
+	defer server.Shutdown()
+
+    configs.InitConfig()
+
+	server.ConfigureAPI()
+
+	server.Port = configs.GetApiPort()
+	server.EnabledListeners = configs.GetEnabledListeners()
+    if err := server.Serve(); err != nil {
+        log.Fatalln(err)
+    }
+}

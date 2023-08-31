@@ -1,0 +1,8 @@
+api:
+  port: 8070
+  listeners: http
+db:
+  host: postgres:5432
+  user: tests
+  password: tests
+  database: tests
